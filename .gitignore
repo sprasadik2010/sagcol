@@ -14,6 +14,12 @@ client/dist/
 client/.vite/
 client/.DS_Store
 
+# === Admin (Vite - React) ===
+admin/node_modules/
+admin/dist/
+admin/.vite/
+admin/.DS_Store
+
 # === IDE/editor-specific ===
 **/.vscode/
 **/.idea/

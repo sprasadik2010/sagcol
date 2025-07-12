@@ -1,12 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
+from typing import List
+
 from database import SessionLocal
 from models import Product
-from schemas import ProductSchema
-from typing import List
+from schemas import ProductSchema, ProductCreate
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
+# Dependency to get DB session
 def get_db():
     db = SessionLocal()
     try:
@@ -14,6 +17,34 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/", response_model=List[ProductSchema])
+# 1. Get all products
+@router.get("/GetAllProducts", response_model=List[ProductSchema])
 def get_products(db: Session = Depends(get_db)):
     return db.query(Product).all()
+
+# 2. Get product by ID
+@router.get("/GetProductById/{product_id}", response_model=ProductSchema)
+def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+# 3. Search products by name
+@router.get("/SearchProduct", response_model=List[ProductSchema])
+def search_product(query: str = Query(..., min_length=1), db: Session = Depends(get_db)):
+    results = db.query(Product).filter(Product.name.ilike(f"%{query}%")).all()
+    return results
+
+# 4. Add a new product
+@router.post("/AddProduct", response_model=ProductSchema)
+def add_product(product: ProductCreate, db: Session = Depends(get_db)):
+    try:
+        new_product = Product(**product.dict())
+        db.add(new_product)
+        db.commit()
+        db.refresh(new_product)
+        return new_product
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error adding product")

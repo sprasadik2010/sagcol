@@ -1,0 +1,39 @@
+# === Server (FastAPI - Python) ===
+server/__pycache__/
+server/*.py[cod]
+server/.env
+server/sagvenv/          # Your virtual environment
+server/.mypy_cache/
+server/.pytest_cache/
+server/*.db
+server/.DS_Store
+server/gdrivekey/key.json
+server/gdrivefuncs/credentials.json
+
+# === Client (Vite - React) ===
+client/node_modules/
+client/dist/
+client/.vite/
+client/.DS_Store
+
+# === Admin (Vite - React) ===
+admin/node_modules/
+admin/dist/
+admin/.vite/
+admin/.DS_Store
+
+# === IDE/editor-specific ===
+**/.vscode/
+**/.idea/
+**/*.sublime-project
+**/*.sublime-workspace
+
+# === System files ===
+**/.DS_Store
+**/Thumbs.db
+
+# === Logs and temp files ===
+**/*.log
+**/*.bak
+**/*.tmp
+**/*.swp

@@ -2,14 +2,19 @@ from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from typing import List
-from gdrivefuncs.gdrivefunctions import upload_file_to_drive
+# from gdrivefuncs.gdrivefunctions import upload_file_to_drive
+from gdrivefuncs.upload_to_drive import upload_file_to_drive
 from uuid import uuid4
 import shutil
+import os
 
 
 from database import SessionLocal
 from models import Product
 from schemas import ProductSchema, ProductCreate
+
+from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -53,6 +58,7 @@ def add_product(product: ProductCreate, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail="Error adding product")
 
+# 4. Upload a  product Image
 @router.patch("/upload-product-image")
 async def upload_product_image(
     file: UploadFile = File(...),
@@ -66,7 +72,7 @@ async def upload_product_image(
             shutil.copyfileobj(file.file, buffer)
 
         # Upload to Google Drive
-        folder_id = "1PE5LJp9ZgNYV4vhrQrNmV3RXQ8eQGUQu"
+        folder_id = "1LFN2Oy2wiNGMJKixfAIrWlmwR8xISJR5"
         gdrive_link = upload_file_to_drive(temp_path, file.filename, folder_id)
 
         # Optionally: Save image reference to a ProductImage or similar table
@@ -82,3 +88,23 @@ async def upload_product_image(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error uploading image: {str(e)}")
+    
+# 4. Auth Redirect Url
+@router.get("/oauth2callback")
+async def oauth2callback(request: Request):
+    from gdrivefuncs.upload_to_drive import handle_auth_callback
+
+    full_url = str(request.url)
+    try:
+        handle_auth_callback(full_url)
+        return {"message": "Authorization successful. You can now upload files."}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# 5. Authorisation
+@router.get("/authorize")
+def authorize():
+    from gdrivefuncs.upload_to_drive import get_auth_url
+    auth_url = get_auth_url()
+    return RedirectResponse(auth_url)

@@ -9,6 +9,9 @@ server/*.db
 server/.DS_Store
 server/gdrivekey/key.json
 server/gdrivefuncs/credentials.json
+server/credentials.json
+server/gdrivefuncs/credentialsold.json
+server/token.pickle
 
 # === Client (Vite - React) ===
 client/node_modules/

@@ -2,6 +2,7 @@
 
 import os
 import pickle
+import json
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -13,8 +14,20 @@ STATE_FILE = 'state.pickle'
 REDIRECT_URI = 'https://sagcol.onrender.com/products/oauth2callback'
 
 
-# Create the flow object for first step of OAuth
+# ✅ Write credentials.json from env variable if it doesn’t exist
+def ensure_credentials_file():
+    if not os.path.exists(CLIENT_SECRETS_FILE):
+        creds_content = os.getenv("GOOGLE_CREDENTIALS_JSON")
+        if not creds_content:
+            raise Exception("GOOGLE_CREDENTIALS_JSON environment variable not set")
+        with open(CLIENT_SECRETS_FILE, "w") as f:
+            f.write(creds_content)
+
+
+# 🔑 Step 1: Generate authorization URL
 def get_auth_url():
+    ensure_credentials_file()
+
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
@@ -25,15 +38,16 @@ def get_auth_url():
         include_granted_scopes='true'
     )
 
-    # Save state to reuse in callback
     with open(STATE_FILE, 'wb') as f:
         pickle.dump(state, f)
 
     return auth_url
 
 
-# Process OAuth callback and save token
+# 🔑 Step 2: Handle OAuth callback and save token
 def handle_auth_callback(full_request_url):
+    ensure_credentials_file()
+
     if not os.path.exists(STATE_FILE):
         raise Exception("Missing saved state from OAuth")
 
@@ -48,14 +62,13 @@ def handle_auth_callback(full_request_url):
     )
     flow.fetch_token(authorization_response=full_request_url)
 
-    # Save the token
     with open(TOKEN_FILE, 'wb') as token:
         pickle.dump(flow.credentials, token)
 
     return True
 
 
-# Load token and return Drive service
+# 🔑 Step 3: Load token and get Drive service
 def get_drive_service():
     if not os.path.exists(TOKEN_FILE):
         raise Exception("Token not found. Please authorize first.")
@@ -66,7 +79,7 @@ def get_drive_service():
     return build('drive', 'v3', credentials=creds)
 
 
-# Upload a file to Google Drive
+# ✅ Step 4: Upload file to Google Drive
 def upload_file_to_drive(local_file_path: str, filename: str, folder_id: str):
     service = get_drive_service()
 

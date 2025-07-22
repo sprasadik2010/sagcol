@@ -10,7 +10,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive.file']
 CLIENT_SECRETS_FILE = 'credentials.json'
 TOKEN_FILE = 'token.pickle'
 STATE_FILE = 'state.pickle'
-REDIRECT_URI = 'http://localhost:8000/products/oauth2callback'
+REDIRECT_URI = 'https://sagcol.onrender.com/products/oauth2callback'
 
 
 # Create the flow object for first step of OAuth

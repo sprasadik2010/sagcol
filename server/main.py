@@ -9,6 +9,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
+        "https://sagcol.onrender.com",
         "https://sagcollections-admin.onrender.com",
         "https://sagcollections-client.onrender.com"
         ], 

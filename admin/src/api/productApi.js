@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/products"; // FastAPI backend
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const fetchProducts = async () => {
   const res = await fetch(API_URL + "/GetAllProducts");

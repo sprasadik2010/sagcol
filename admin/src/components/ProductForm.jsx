@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { uploadProductImage } from "../api/productApi";
 
 export default function ProductForm({ onSave, product }) {
   const [form, setForm] = useState({
@@ -27,8 +28,20 @@ export default function ProductForm({ onSave, product }) {
     }));
   };
 
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
+
+  let imagepath = "";
+
+  if (form.imagefile) {
+    try {
+      const result = await uploadProductImage(form.imagefile);
+      imagepath = result.drive_url; // <-- this is the image URL from Google Drive
+    } catch (err) {
+      alert("Image upload failed: " + err.message);
+      return;
+    }
+  }
 
   const productData = {
     name: form.name,
@@ -36,7 +49,7 @@ export default function ProductForm({ onSave, product }) {
     price: parseFloat(form.price),
     stock: parseInt(form.stock),
     isactive: form.isactive,
-    imagepath: form.imagefile ? form.imagefile.name : "", // just the filename
+    imagepath: imagepath, // now using Google Drive URL
   };
 
   await onSave(productData);

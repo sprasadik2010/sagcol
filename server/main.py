@@ -7,7 +7,11 @@ app = FastAPI()
 # ✅ Add this middleware to fix CORS error
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React Vite dev server
+    allow_origins=[
+        "http://localhost:5173",
+        "https://sagcollections-admin.onrender.com",
+        "https://sagcollections-client.onrender.com"
+        ], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -4,7 +4,7 @@ export default function ProductList({ products, onEdit, onDelete }) {
       {products.map((product) => (
         <div key={product.id} className="border p-4 rounded shadow">
           {product.imagepath && (
-            <img src={product.imagepath} alt="" className="w-full h-40 object-cover mb-2" />
+            <img src={`https://drive.google.com/uc?export=view&id=${product.imagepath}`} alt="" className="w-full h-40 object-cover mb-2" />
           )}
           <h3 className="text-lg font-bold">{product.name}</h3>
           <p className="text-gray-700 text-sm">{product.description}</p>

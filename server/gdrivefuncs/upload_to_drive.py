@@ -6,6 +6,7 @@ import json
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaIoBaseDownload
 
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 CLIENT_SECRETS_FILE = 'credentials.json'
@@ -78,6 +79,17 @@ def get_drive_service():
 
     return build('drive', 'v3', credentials=creds)
 
+# ✅ Make file publicly accessible
+def make_file_public(service, file_id):
+    permission = {
+        'type': 'anyone',
+        'role': 'reader'
+    }
+    service.permissions().create(
+        fileId=file_id,
+        body=permission,
+    ).execute()
+
 
 # ✅ Step 4: Upload file to Google Drive
 def upload_file_to_drive(local_file_path: str, filename: str, folder_id: str):
@@ -95,4 +107,24 @@ def upload_file_to_drive(local_file_path: str, filename: str, folder_id: str):
         fields='id'
     ).execute()
 
-    return file.get('id')
+    file_id = file.get('id')
+
+    # Make file public
+    make_file_public(service, file_id)
+
+    return file_id
+
+#     # ✅ Step 5: Download file from Google Drive
+# def download_file_from_drive(file_id: str, destination_path: str):
+#     service = get_drive_service()
+
+#     request = service.files().get_media(fileId=file_id)
+#     fh = io.FileIO(destination_path, 'wb')
+#     downloader = MediaIoBaseDownload(fh, request)
+
+#     done = False
+#     while not done:
+#         status, done = downloader.next_chunk()
+#         print(f"Download progress: {int(status.progress() * 100)}%")
+
+#     return destination_path

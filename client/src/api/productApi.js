@@ -10,7 +10,18 @@ export const fetchProducts = async () => {
   return res.json(); // expects array of product objects
 };
 
-export const getProductImage = async (fileId) => {
-  // Construct Drive URL or call FastAPI endpoint if you proxy image fetching
-  return `https://drive.usercontent.google.com/download?id=${fileId}`;
+export const getProductImage = async (fileid) => {
+  const res = await fetch(`${API_URL}/getimage/${fileid}`, {
+    method: "GET",
+    credentials: "include", // optional if using cookies/auth
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch image");
+  }
+
+  const blob = await res.blob();
+  const imageUrl = URL.createObjectURL(blob); // create object URL for blob
+
+  return imageUrl; // can be used as src in <img>
 };

@@ -8,27 +8,32 @@ export default function ProductItem({ id, fileId, name, price, priceSale, status
   const addToCart = useCartStore(state => state.addToCart);
 
   useEffect(() => {
-    let isMounted = true;
+  let isMounted = true;
+  let objectUrl;
 
-    async function fetchImage() {
-      try {
-        const url = await getProductImage(fileId);
-        if (isMounted) {
-          setImgUrl(url);
-        }
-      } catch (err) {
-        console.error("Image load error:", err);
+  async function fetchImage() {
+    try {
+      const url = await getProductImage(fileId);
+      objectUrl = url;
+      if (isMounted) {
+        setImgUrl(url);
       }
+    } catch (err) {
+      console.error("Image load error:", err);
     }
+  }
 
-    if (fileId) {
-      fetchImage();
+  if (fileId) {
+    fetchImage();
+  }
+
+  return () => {
+    isMounted = false;
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl); // Clean up blob URL
     }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fileId]);
+  };
+}, [fileId]);
 
   const handleAddToCart = () => {
     addToCart({ id, name, price, quantity: 1, image: imgUrl });

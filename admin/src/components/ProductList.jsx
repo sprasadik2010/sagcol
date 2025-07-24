@@ -1,10 +1,14 @@
+import { getProductImage } from "../api/productApi";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function ProductList({ products, onEdit, onDelete }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
       {products.map((product) => (
         <div key={product.id} className="border p-4 rounded shadow">
           {product.imagepath && (
-            <img src={`https://sagcol.onrender.com/getimage/${product.imagepath}`} alt="" className="w-full h-40 object-cover mb-2" />
+            <img src={getProductImage(`${product.imagepath}`)} alt="" className="w-full h-40 object-cover mb-2" />
           )}
           <h3 className="text-lg font-bold">{product.name}</h3>
           <p className="text-gray-700 text-sm">{product.description}</p>

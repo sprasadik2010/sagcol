@@ -2,15 +2,14 @@ import { useState, useEffect } from "react";
 import { uploadProductImage } from "../api/productApi";
 
 export default function ProductForm({ onSave, product }) {
-
-   const [loading, setLoading] = useState(false); // <-- loading state
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
     description: "",
     price: "",
     stock: 0,
-    imagefile: null, // file object
+    imagefile: null,
     isactive: true,
   });
 
@@ -25,51 +24,78 @@ export default function ProductForm({ onSave, product }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+
+    if (type === "file" && files.length > 0) {
+      const file = files[0];
+
+      // Validate file type
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Invalid file type. Please upload JPG, PNG, WEBP, or GIF.");
+        e.target.value = ""; // reset file input
+        return;
+      }
+
+      // Valid file
+      setForm((prev) => ({ ...prev, imagefile: file }));
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : type === "file" ? files[0] : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-    setLoading(true); // start loading
-  let imagepath = "";
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    let imagepath = "";
 
-  if (form.imagefile) {
-    try {
-      const result = await uploadProductImage(form.imagefile);
-      imagepath = result.drive_url; // <-- this is the image URL from Google Drive
-    } catch (err) {
-      alert("Image upload failed: " + err.message);
-      setLoading(false); // stop loading on error
+    // Image is required for new product only
+    if (!product && !form.imagefile) {
+      alert("Please select an image.");
+      setLoading(false);
       return;
     }
-  }
 
-  const productData = {
-    name: form.name,
-    description: form.description,
-    price: parseFloat(form.price),
-    stock: parseInt(form.stock),
-    isactive: form.isactive,
-    imagepath: imagepath, // now using Google Drive URL
+    // Upload image if selected
+    if (form.imagefile) {
+      try {
+        const result = await uploadProductImage(form.imagefile);
+        imagepath = result.drive_url;
+      } catch (err) {
+        alert("Image upload failed: " + err.message);
+        setLoading(false);
+        return;
+      }
+    } else if (product) {
+      imagepath = product.imagepath; // retain existing image during update
+    }
+
+    const productData = {
+      name: form.name,
+      description: form.description,
+      price: parseFloat(form.price),
+      stock: parseInt(form.stock),
+      isactive: form.isactive,
+      imagepath: imagepath,
+    };
+
+    await onSave(productData);
+
+    setForm({
+      name: "",
+      description: "",
+      price: "",
+      stock: 0,
+      imagefile: null,
+      isactive: true,
+    });
+
+    document.getElementById("fileInput").value = "";
+    setLoading(false);
   };
-
-  await onSave(productData);
-
-  setForm({
-    name: "",
-    description: "",
-    price: "",
-    stock: 0,
-    imagefile: null,
-    isactive: true,
-  });
-
-  document.getElementById("fileInput").value = "";
-  setLoading(false); 
-};
 
   return (
     <form
@@ -154,9 +180,7 @@ const handleSubmit = async (e) => {
             </svg>
             Processing...
           </>
-        ) : (
-          product ? "Update Product" : "Add Product"
-        )}
+        ) : product ? "Update Product" : "Add Product"}
       </button>
     </form>
   );

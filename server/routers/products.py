@@ -125,3 +125,14 @@ def get_drive_image(file_id: str):
         return Response(content=r.content, media_type=content_type)
     else:
         return Response(content="Image not found", status_code=404)
+
+# 7. Delete image from Drive
+@router.delete("/deleteimage/{file_id}")
+def delete_drive_image(file_id: str):
+    from gdrivefuncs.upload_to_drive import delete_file_from_drive
+
+    success = delete_file_from_drive(file_id)
+    if success:
+        return {"message": f"Image with ID {file_id} deleted successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete image from Google Drive")

@@ -4,6 +4,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  deleteProductImage
 } from "../api/productApi";
 import ProductForm from "../components/ProductForm";
 import ProductList from "../components/ProductList";
@@ -27,8 +28,9 @@ export default function AdminDashboard() {
     loadProducts();
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, imagepath) => {
     await deleteProduct(id);
+    await deleteProductImage(imagepath)
     loadProducts();
   };
 

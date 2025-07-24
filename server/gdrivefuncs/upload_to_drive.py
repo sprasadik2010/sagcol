@@ -114,17 +114,12 @@ def upload_file_to_drive(local_file_path: str, filename: str, folder_id: str):
 
     return file_id
 
-#     # ✅ Step 5: Download file from Google Drive
-# def download_file_from_drive(file_id: str, destination_path: str):
-#     service = get_drive_service()
-
-#     request = service.files().get_media(fileId=file_id)
-#     fh = io.FileIO(destination_path, 'wb')
-#     downloader = MediaIoBaseDownload(fh, request)
-
-#     done = False
-#     while not done:
-#         status, done = downloader.next_chunk()
-#         print(f"Download progress: {int(status.progress() * 100)}%")
-
-#     return destination_path
+# ✅ Step 5: Delete a file from Google Drive by file ID
+def delete_file_from_drive(file_id: str):
+    service = get_drive_service()
+    try:
+        service.files().delete(fileId=file_id).execute()
+        return True  # Indicate successful deletion
+    except Exception as e:
+        print(f"Error deleting file: {e}")
+        return False  # Indicate failure

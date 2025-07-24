@@ -55,7 +55,7 @@ export default function ProductList({ products, onEdit, onDelete }) {
               Edit
             </button>
             <button
-              onClick={() => onDelete(product.id)}
+              onClick={() => onDelete(product.id, product.imagepath)}
               className="px-3 py-1 bg-red-500 text-white rounded"
             >
               Delete

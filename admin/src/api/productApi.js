@@ -32,7 +32,7 @@ export const updateProduct = async (id, product) => {
 };
 
 export const deleteProduct = async (id) => {
-  return fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  return fetch(`${API_URL + "/DeleteProduct"}/${id}`, { method: "DELETE" });
 };
 
 export const uploadProductImage = async (file) => {

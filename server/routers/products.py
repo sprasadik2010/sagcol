@@ -136,3 +136,18 @@ def delete_drive_image(file_id: str):
         return {"message": f"Image with ID {file_id} deleted successfully"}
     else:
         raise HTTPException(status_code=500, detail="Failed to delete image from Google Drive")
+
+# 8. Delete a product by ID
+@router.delete("/DeleteProduct/{product_id}", response_model=dict)
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    try:
+        db.delete(product)
+        db.commit()
+        return {"message": f"Product with ID {product_id} has been deleted successfully"}
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error deleting product")

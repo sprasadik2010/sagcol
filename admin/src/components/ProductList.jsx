@@ -6,7 +6,7 @@ export default function ProductList({ products, onEdit, onDelete }) {
           {product.imagepath && (
             // <img src={`https://drive.google.com/uc?export=view&id=${product.imagepath}`} alt="" className="w-full h-40 object-cover mb-2" />
             <iframe
-              src={`https://drive.google.com/file/d/${currentUser.paymentproof}/preview`}
+              src={`https://drive.google.com/file/d/${product.imagepath}/preview`}
               width="100%"
               height="480"
               allow="autoplay"

@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { uploadProductImage } from "../api/productApi";
 
 export default function ProductForm({ onSave, product }) {
+
+   const [loading, setLoading] = useState(false); // <-- loading state
+
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -30,7 +33,7 @@ export default function ProductForm({ onSave, product }) {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-
+    setLoading(true); // start loading
   let imagepath = "";
 
   if (form.imagefile) {
@@ -39,6 +42,7 @@ const handleSubmit = async (e) => {
       imagepath = result.drive_url; // <-- this is the image URL from Google Drive
     } catch (err) {
       alert("Image upload failed: " + err.message);
+      setLoading(false); // stop loading on error
       return;
     }
   }
@@ -64,6 +68,7 @@ const handleSubmit = async (e) => {
   });
 
   document.getElementById("fileInput").value = "";
+  setLoading(false); 
 };
 
   return (
@@ -120,8 +125,38 @@ const handleSubmit = async (e) => {
         />
         <span>Active</span>
       </label>
-      <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        {product ? "Update Product" : "Add Product"}
+      <button
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center justify-center"
+        type="submit"
+        disabled={loading}
+      >
+        {loading ? (
+          <>
+            <svg
+              className="animate-spin h-5 w-5 mr-2 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"
+              ></path>
+            </svg>
+            Processing...
+          </>
+        ) : (
+          product ? "Update Product" : "Add Product"
+        )}
       </button>
     </form>
   );

@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { getProductImage } from "../api/productApi";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 function ProductImage({ fileId }) {
   const [imgUrl, setImgUrl] = useState("");
 
@@ -35,6 +33,22 @@ function ProductImage({ fileId }) {
 }
 
 export default function ProductList({ products, onEdit, onDelete }) {
+  const [isDeletingId, setIsDeletingId] = useState(null);
+
+  const handleDelete = async (productId, imagepath) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    setIsDeletingId(productId);
+    try {
+      await onDelete(productId, imagepath); // Assuming onDelete is an async function
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setIsDeletingId(null);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
       {products.map((product) => (
@@ -51,14 +65,16 @@ export default function ProductList({ products, onEdit, onDelete }) {
             <button
               onClick={() => onEdit(product)}
               className="px-3 py-1 bg-yellow-400 text-white rounded"
+              disabled={isDeletingId === product.id}
             >
               Edit
             </button>
             <button
-              onClick={() => onDelete(product.id, product.imagepath)}
+              onClick={() => handleDelete(product.id, product.imagepath)}
               className="px-3 py-1 bg-red-500 text-white rounded"
+              disabled={isDeletingId === product.id}
             >
-              Delete
+              {isDeletingId === product.id ? "Deleting..." : "Delete"}
             </button>
           </div>
         </div>

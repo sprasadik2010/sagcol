@@ -108,3 +108,18 @@ def authorize():
     from gdrivefuncs.upload_to_drive import get_auth_url
     auth_url = get_auth_url()
     return RedirectResponse(auth_url)
+
+# 6. Get Image from Drive
+@router.get("/getimage/{file_id}")
+def get_drive_image(file_id: str):
+    # Build Google Drive direct download link
+    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    r = requests.get(url, headers=headers)
+    
+    if r.status_code == 200:
+        content_type = r.headers.get("Content-Type", "image/jpeg")  # adjust as needed
+        return Response(content=r.content, media_type=content_type)
+    else:
+        return Response(content="Image not found", status_code=404)

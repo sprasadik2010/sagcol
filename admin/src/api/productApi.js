@@ -72,16 +72,13 @@ export const getProductImage = async (fileid) => {
 
 export const deleteProductImage = async (fileid) => {
   const res = await fetch(`${API_URL}/deleteimage/${fileid}`, {
-    method: "GET",
-    credentials: "include", // optional if using cookies/auth
+    method: "DELETE"
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch image");
+    throw new Error("Failed to delete image");
   }
 
-  const blob = await res.blob();
-  const imageUrl = URL.createObjectURL(blob); // create object URL for blob
-
-  return imageUrl; // can be used as src in <img>
+  const data = await res.json(); // ✅ parse JSON response
+  return data; // { message: "Image with ID ... deleted successfully" }
 };
